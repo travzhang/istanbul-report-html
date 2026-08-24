@@ -1,7 +1,7 @@
 {
   "name": "canyonjs-dev-report-component",
   "type": "module",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "A starter for creating a React component library.",
   "author": "Travis Zhang (https://github.com/travzhang)",
   "license": "MIT",
