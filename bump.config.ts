@@ -9,6 +9,6 @@ export default defineConfig({
   ],
   tag: true,
   commit: true,
-  push: false,
+  push: true,
   execute: "pnpm install",
 });
