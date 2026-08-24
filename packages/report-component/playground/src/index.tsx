@@ -1,8 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App.tsx'
+import 'monaco-editor-css'
 import './style.css'
-import './useWorker.ts'
 
 createRoot(document.querySelector('#app')!).render(
   <StrictMode>

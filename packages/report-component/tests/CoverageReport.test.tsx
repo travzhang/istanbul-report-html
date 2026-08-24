@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { expect, test } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { Report } from '../src'
+import { filesToDataSource } from '../src/helpers/summary'
 import { coverageLines, makeFileCoverage } from '../src/make-coverage'
-import { fileCoverageToDataSource } from '../src/metrics'
+import type { FileCoverageData } from '../src/types'
 
-const coverage = {
+const coverage: Record<string, FileCoverageData> = {
   'src/index.ts': makeFileCoverage('src/index.ts', coverageLines(8, 2)),
   'src/utils.ts': makeFileCoverage('src/utils.ts', coverageLines(5, 5)),
   'lib/parse.ts': makeFileCoverage('lib/parse.ts', coverageLines(3, 1)),
@@ -17,7 +18,17 @@ const sources: Record<string, string> = {
   'lib/parse.ts': 'export function parse() {}\n',
 }
 
-const dataSource = fileCoverageToDataSource(coverage)
+const emptyCoverage: FileCoverageData = {
+  path: '',
+  statementMap: {},
+  fnMap: {},
+  branchMap: {},
+  s: {},
+  f: {},
+  b: {},
+}
+
+const dataSource = filesToDataSource(Object.values(coverage))
 
 function Harness() {
   const [value, setValue] = useState('')
@@ -28,7 +39,10 @@ function Harness() {
       dataSource={dataSource}
       onSelect={async (val) => {
         setValue(val)
-        return { source: sources[val] ?? '' }
+        return {
+          fileCoverage: coverage[val] ?? emptyCoverage,
+          fileContent: sources[val] ?? '',
+        }
       }}
     />
   )
@@ -37,23 +51,23 @@ function Harness() {
 test('tree, list, search, and file source', async () => {
   const screen = await render(<Harness />)
 
-  await expect.element(screen.getByRole('button', { name: 'src' })).toBeInTheDocument()
-  await expect.element(screen.getByRole('button', { name: 'lib' })).toBeInTheDocument()
+  await expect.element(screen.getByText('src', { exact: true })).toBeInTheDocument()
+  await expect.element(screen.getByText('lib', { exact: true })).toBeInTheDocument()
 
-  await screen.getByRole('button', { name: 'src' }).click()
-  await expect.element(screen.getByRole('button', { name: 'index.ts' })).toBeInTheDocument()
-  await expect.element(screen.getByRole('button', { name: 'utils.ts' })).toBeInTheDocument()
+  await screen.getByText('src', { exact: true }).click()
+  await expect.element(screen.getByText('index.ts')).toBeInTheDocument()
+  await expect.element(screen.getByText('utils.ts')).toBeInTheDocument()
 
-  await screen.getByRole('button', { name: 'File list' }).click()
-  await expect.element(screen.getByRole('button', { name: 'src/index.ts' })).toBeInTheDocument()
-  await expect.element(screen.getByText(/3 total files/)).toBeInTheDocument()
+  await screen.getByText('hono', { exact: true }).click()
+  await screen.getByText('File List').click()
+  await expect.element(screen.getByText('src/index.ts')).toBeInTheDocument()
+  await expect.element(screen.getByText(/3 Total Files/)).toBeInTheDocument()
 
-  await screen.getByPlaceholder('Search for files').fill('utils')
-  await expect.element(screen.getByRole('button', { name: 'src/utils.ts' })).toBeInTheDocument()
-  await expect.element(screen.getByRole('button', { name: 'src/index.ts' })).not.toBeInTheDocument()
-
-  await screen.getByRole('button', { name: 'src/utils.ts' }).click()
-  await expect.element(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument()
+  await screen.getByPlaceholder('Enter the file path to search').fill('utils')
   await expect.element(screen.getByText('src/utils.ts')).toBeInTheDocument()
-  await expect.element(screen.getByText('export function util() {}')).toBeInTheDocument()
+  await expect.element(screen.getByText('src/index.ts')).not.toBeInTheDocument()
+
+  await screen.getByText('src/utils.ts').click()
+  await expect.element(screen.getByText('src/utils.ts')).toBeInTheDocument()
+  await expect.poll(() => document.querySelector('.monaco-editor')).not.toBeNull()
 })

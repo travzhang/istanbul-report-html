@@ -23,10 +23,17 @@ export function makeFileCoverage(
     const line = entry[0]
     const hits = entry[1]
     branchMap[String(index)] = {
+      type: 'branch',
       loc: {
         start: { line, column: 0 },
         end: { line, column: 80 },
       },
+      locations: [
+        {
+          start: { line, column: 0 },
+          end: { line, column: 80 },
+        },
+      ],
     }
     b[String(index)] = [...hits]
   }

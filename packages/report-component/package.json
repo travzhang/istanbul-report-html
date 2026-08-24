@@ -15,7 +15,8 @@
   },
   "exports": {
     ".": "./dist/index.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist"
@@ -37,9 +38,11 @@
   },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.8",
+    "@tsdown/css": "^0.22.14",
     "@types/node": "^26.1.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@types/react-highlight-words": "^0.20.1",
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/browser-playwright": "^4.1.10",
     "tsdown": "^0.22.5",
@@ -49,7 +52,9 @@
     "vitest-browser-react": "^2.2.0"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.3.2",
     "antd": "^6.6.1",
-    "monaco-editor": "^0.56.0"
+    "monaco-editor": "^0.56.0",
+    "react-highlight-words": "^0.21.0"
   }
 }

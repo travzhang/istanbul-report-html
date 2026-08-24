@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
+import { filesToDataSource } from '../src/helpers/summary'
 import { coverageLines, makeFileCoverage } from '../src/make-coverage'
-import { fileCoverageToDataSource } from '../src/metrics'
 import {
   cwdBaseName,
   resolveInstrumentCwd,
@@ -40,11 +40,13 @@ test('resolveSource looks up by absolute or relative key', () => {
   expect(resolveSource({ 'src/index.ts': 'ok' }, 'src/index.ts', '')).toBe('ok')
 })
 
-test('fileCoverageToDataSource emits paths relative to instrumentCwd', () => {
+test('filesToDataSource keeps coverage file paths', () => {
   const coverage = {
     '/Users/foo/hono/src/index.ts': makeFileCoverage('/Users/foo/hono/src/index.ts', coverageLines(2, 0)),
     '/Users/foo/hono/build/index.js': makeFileCoverage('/Users/foo/hono/build/index.js', coverageLines(1, 1)),
   }
-  const items = fileCoverageToDataSource(coverage)
-  expect(items.map((item) => item.path).sort()).toEqual(['build/index.js', 'src/index.ts'])
+  const items = filesToDataSource(Object.values(coverage)).map((item) =>
+    toRelativePath(item.path, '/Users/foo/hono'),
+  )
+  expect(items.sort()).toEqual(['build/index.js', 'src/index.ts'])
 })

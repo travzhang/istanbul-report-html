@@ -1,33 +1,54 @@
-export interface CoverageMetrics {
-  tracked: number
+export interface CoverageLocation {
+  line: number
+  column: number
+}
+
+export interface CoverageRange {
+  start: CoverageLocation
+  end: CoverageLocation
+}
+
+export interface FunctionMapping {
+  name?: string
+  decl?: CoverageRange
+  loc: CoverageRange
+}
+
+export interface BranchMapping {
+  loc?: CoverageRange
+  type: string
+  locations: CoverageRange[]
+}
+
+/** Shape compatible with istanbul-lib-coverage `FileCoverageData`. */
+export interface FileCoverageData {
+  path: string
+  statementMap: Record<string, CoverageRange>
+  fnMap: Record<string, FunctionMapping>
+  branchMap: Record<string, BranchMapping>
+  s: Record<string, number>
+  f: Record<string, number>
+  b: Record<string, number[]>
+}
+
+export interface CoverageTotals {
+  total: number
   covered: number
-  partial: number
-  missed: number
+  skipped: number
   pct: number
 }
 
-export type FileKind = 'file' | 'dir'
-
-export interface FileTreeNode {
-  name: string
-  path: string
-  kind: FileKind
-  metrics: CoverageMetrics
-  children: FileTreeNode[]
-}
-
 export interface DataSourceItem {
-  /** 文件路径 */
   path: string
-  tracked: number
-  covered: number
-  partial: number
-  missed: number
+  statements: CoverageTotals
+  branches: CoverageTotals
+  functions: CoverageTotals
+  lines: CoverageTotals
 }
 
 export interface FileDataResponse {
-  /** 文件源码 */
-  source: string
+  fileCoverage: FileCoverageData
+  fileContent: string
 }
 
 export interface ReportProps {
@@ -39,23 +60,19 @@ export interface ReportProps {
   onSelect: (val: string) => Promise<FileDataResponse>
 }
 
-/** Shape compatible with istanbul-lib-coverage `FileCoverageData`. */
-export interface CoverageLocation {
-  line: number
-  column: number
+export interface ReportAppFile extends FileCoverageData {
+  source: string
 }
 
-export interface CoverageRange {
-  start: CoverageLocation
-  end: CoverageLocation
-}
-
-export interface FileCoverageData {
-  path: string
-  statementMap: Record<string, CoverageRange>
-  fnMap: Record<string, { loc: CoverageRange }>
-  branchMap: Record<string, { loc: CoverageRange }>
-  s: Record<string, number>
-  f: Record<string, number>
-  b: Record<string, number[]>
+export interface ReportAppProps {
+  files: ReportAppFile[]
+  /** 插桩工作目录，用于裁剪文件路径前缀 */
+  instrumentCwd: string
+  generatedAt?: string
+  name?: string
+  defaultValue?: string
+  packageName?: string
+  packageVersion?: string
+  height?: string | number
+  showFooter?: boolean
 }

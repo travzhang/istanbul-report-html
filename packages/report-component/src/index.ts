@@ -1,6 +1,8 @@
-export { MyButton } from './MyButton'
+import './index.css'
+
 export { Report } from './Report'
-export { fileCoverageToDataSource } from './metrics'
+export { ReportApp } from './ReportApp'
+export { filesToDataSource } from './helpers/summary'
 export {
   cwdBaseName,
   resolveInstrumentCwd,
@@ -8,4 +10,11 @@ export {
   toAbsolutePath,
   toRelativePath,
 } from './paths'
-export type { DataSourceItem, FileCoverageData, FileDataResponse, ReportProps } from './types'
+export type {
+  DataSourceItem,
+  FileCoverageData,
+  FileDataResponse,
+  ReportAppFile,
+  ReportAppProps,
+  ReportProps,
+} from './types'
