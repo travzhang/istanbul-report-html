@@ -39,7 +39,7 @@ class HtmlReport extends ReportBase {
   }
 
   onDetail(node: ReportNode): void {
-    const fileCoverage = node.getFileCoverage()
+    const fileCoverage: FileCoverageData = node.getFileCoverage().toJSON();
     this.coverage[fileCoverage.path] = fileCoverage;
   }
 
