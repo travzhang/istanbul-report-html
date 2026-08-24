@@ -2,8 +2,21 @@ import { useEffect, useMemo, useRef } from 'react'
 import { annotateBranches, annotateFunctions, annotateStatements } from '../helpers/annotate'
 import { coreFn } from '../helpers/coreFn'
 import { languageFromPath, monaco } from '../monaco'
+import type { CoverageAnnotation } from '../helpers/annotate'
 import type { FileCoverageData } from '../types'
 import lineNumbers from './lineNumbers'
+
+const UNCOVERED_HOVER: Record<CoverageAnnotation['type'], string> = {
+  S: 'Statement not covered',
+  F: 'Function not covered',
+  B: 'Branch not covered',
+  I: 'If path not taken',
+  E: 'Else path not taken',
+}
+
+function hoverMessage(type: CoverageAnnotation['type']): monaco.IMarkdownString {
+  return { value: UNCOVERED_HOVER[type] }
+}
 
 const emptyCoverage: FileCoverageData = {
   path: '',
@@ -76,12 +89,14 @@ const CoverageDetail = ({
 
     const decorations: monaco.editor.IModelDeltaDecoration[] = []
     for (const item of all) {
+      const hover = hoverMessage(item.type)
       if (item.type === 'S' || item.type === 'F') {
         decorations.push({
           range: new monaco.Range(item.startLine, item.startCol, item.endLine, item.endCol),
           options: {
             isWholeLine: false,
             inlineClassName: 'content-class-no-found',
+            hoverMessage: hover,
           },
         })
       } else if (item.type === 'B') {
@@ -90,6 +105,7 @@ const CoverageDetail = ({
           options: {
             isWholeLine: false,
             inlineClassName: 'content-class-no-found-branch',
+            hoverMessage: hover,
           },
         })
       } else if (item.type === 'I') {
@@ -97,6 +113,7 @@ const CoverageDetail = ({
           range: new monaco.Range(item.startLine, item.startCol, item.startLine, item.startCol),
           options: {
             beforeContentClassName: 'insert-i-decoration',
+            hoverMessage: hover,
             stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
           },
         })
@@ -105,6 +122,7 @@ const CoverageDetail = ({
           range: new monaco.Range(item.startLine, item.startCol, item.startLine, item.startCol),
           options: {
             beforeContentClassName: 'insert-e-decoration',
+            hoverMessage: hover,
             stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
           },
         })

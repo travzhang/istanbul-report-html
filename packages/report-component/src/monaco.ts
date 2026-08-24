@@ -1,4 +1,5 @@
 import * as monaco from 'monaco-editor/editor/editor.api'
+import 'monaco-editor/editor/contrib/hover/browser/hoverContribution'
 import 'monaco-editor/languages/definitions/css/register'
 import 'monaco-editor/languages/definitions/html/register'
 import 'monaco-editor/languages/definitions/javascript/register'

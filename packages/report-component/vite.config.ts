@@ -21,6 +21,7 @@ export default defineConfig({
       '@ant-design/icons',
       'antd',
       'monaco-editor/editor/editor.api',
+      'monaco-editor/editor/contrib/hover/browser/hoverContribution',
       'monaco-editor/languages/definitions/css/register',
       'monaco-editor/languages/definitions/html/register',
       'monaco-editor/languages/definitions/javascript/register',
