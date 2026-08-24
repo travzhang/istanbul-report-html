@@ -49,6 +49,7 @@
     "vitest-browser-react": "^2.2.0"
   },
   "dependencies": {
+    "antd": "^6.6.1",
     "monaco-editor": "^0.56.0"
   }
 }

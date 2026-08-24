@@ -11,6 +11,7 @@ import {
   parentPath,
 } from './tree'
 import type { FileTreeNode, ReportProps } from './types'
+import {Button} from "antd";
 
 type ViewMode = 'tree' | 'list'
 type SortKey = 'name' | 'tracked' | 'covered' | 'partial' | 'missed' | 'pct'
@@ -190,6 +191,7 @@ export function Report({ name, value, dataSource, onSelect }: ReportProps) {
     const source = fileData?.path === value ? fileData.source : undefined
     return (
       <div className="canyon-report">
+        <Button>测试按钮</Button>
         <FileSourceView
           filePath={value}
           source={source}
