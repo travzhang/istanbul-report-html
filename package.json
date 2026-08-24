@@ -1,6 +1,6 @@
 {
   "name": "canyonjs-dev-istanbul-report-html",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Istanbul coverage report monorepo",
   "private": true,
   "scripts": {
