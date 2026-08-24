@@ -1,0 +1,79 @@
+.canyonjs-report-html .canyon-coverage-detail-spin-wrapper {
+  height: 100%;
+}
+.canyonjs-report-html .canyon-coverage-detail-spin-wrapper > .ant-spin-container {
+  height: 100%;
+}
+.canyonjs-report-html {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  background: #fff;
+}
+.canyonjs-report-html a {
+  color: #0071c2;
+  cursor: pointer;
+}
+.canyonjs-report-html a:hover {
+  color: #0071c2;
+  opacity: 0.8;
+  text-decoration: underline;
+}
+.canyonjs-report-html .line-number-wrapper {
+  display: flex;
+  justify-self: end;
+}
+.canyonjs-report-html .line-number-wrapper > span {
+  display: block;
+}
+
+.canyonjs-report-html .line-coverage {
+  background-color: #eaeaea;
+  width: 10px;
+  padding-right: 5px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.canyonjs-report-html .YourHighlightClass {
+  padding: 0;
+  color: white;
+  background: rgb(244, 176, 27);
+}
+
+.canyonjs-report-html .content-class-no-found-branch {
+  background: rgba(255, 229, 100, 0.6);
+}
+
+.canyonjs-report-html .content-class-no-found {
+  background: #f3aeac;
+}
+
+.canyonjs-report-html .insert-e-decoration::before {
+  content: "E";
+  background-color: black;
+  color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+.canyonjs-report-html .insert-i-decoration::before {
+  content: "I";
+  background-color: black;
+  color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+.canyonjs-report-html .canyon-coverage-detail-container {
+  height: 100%;
+  position: relative;
+}
+
+.canyonjs-report-html .canyon-coverage-detail-editor {
+  width: 100%;
+  height: 100%;
+}

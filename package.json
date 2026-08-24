@@ -1,0 +1,26 @@
+{
+  "name": "canyonjs-dev-istanbul-report-html",
+  "version": "1.0.16",
+  "description": "Istanbul coverage report monorepo",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter canyonjs-dev-report-component build && pnpm --filter canyonjs-dev-report-html build && pnpm --filter canyonjs-dev-report build",
+    "build:report-html": "pnpm --filter canyonjs-dev-report-html build",
+    "build:report": "pnpm --filter canyonjs-dev-report build",
+    "dev:report-html": "pnpm --filter canyonjs-dev-report-html dev",
+    "publish:packages": "pnpm --filter canyonjs-dev-report-component publish --no-git-checks --access public && pnpm --filter canyonjs-dev-report-html publish --no-git-checks --access public && pnpm --filter canyonjs-dev-report publish --no-git-checks --access public",
+    "release": "bumpp --configFilePath bump.config.ts",
+    "release:patch": "bumpp patch --configFilePath bump.config.ts",
+    "release:minor": "bumpp minor --configFilePath bump.config.ts",
+    "release:major": "bumpp major --configFilePath bump.config.ts",
+    "pretest": "npm run build",
+    "test": "pnpm --filter canyonjs-dev-report test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.0",
+  "devDependencies": {
+    "bumpp": "^11.1.0"
+  }
+}
