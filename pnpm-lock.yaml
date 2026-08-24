@@ -109,16 +109,6 @@ importers:
         version: 2.2.0(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.11)
 
   packages/report-html:
-    dependencies:
-      monaco-editor:
-        specifier: ^0.56.0
-        version: 0.56.0
-      react:
-        specifier: ^19.2.8
-        version: 19.2.8
-      react-dom:
-        specifier: ^19.2.8
-        version: 19.2.8(react@19.2.8)
     devDependencies:
       '@types/node':
         specifier: ^24.13.3
@@ -135,9 +125,18 @@ importers:
       canyonjs-dev-report-component:
         specifier: workspace:*
         version: link:../report-component
+      monaco-editor:
+        specifier: ^0.56.0
+        version: 0.56.0
       oxlint:
         specifier: ^1.79.0
         version: 1.79.0
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.2.8
+        version: 19.2.8(react@19.2.8)
       typescript:
         specifier: ~6.0.2
         version: 6.0.3
