@@ -1,6 +1,6 @@
 {
   "name": "canyonjs-dev-istanbul-report-html",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Istanbul coverage report monorepo",
   "private": true,
   "scripts": {
@@ -13,6 +13,7 @@
     "release:patch": "bumpp patch --configFilePath bump.config.ts",
     "release:minor": "bumpp minor --configFilePath bump.config.ts",
     "release:major": "bumpp major --configFilePath bump.config.ts",
+    "pretest": "npm run build",
     "test": "pnpm --filter canyonjs-dev-report test"
   },
   "keywords": [],
