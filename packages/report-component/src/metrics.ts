@@ -1,4 +1,5 @@
 import type { CoverageMetrics, DataSourceItem, FileCoverageData } from './types'
+import { resolveInstrumentCwd, toRelativePath } from './paths'
 
 export function round2(value: number): number {
   return Math.round(value * 100) / 100
@@ -76,11 +77,15 @@ export function computeFileMetrics(coverage: FileCoverageData): CoverageMetrics 
 
 export function fileCoverageToDataSource(
   coverage: Record<string, FileCoverageData>,
+  instrumentCwd?: string,
 ): DataSourceItem[] {
+  const absPaths = Object.entries(coverage).map(([key, data]) => data.path || key)
+  const cwd = instrumentCwd ?? resolveInstrumentCwd(absPaths)
+
   return Object.entries(coverage).map(([key, data]) => {
     const metrics = computeFileMetrics(data)
     return {
-      path: data.path || key,
+      path: toRelativePath(data.path || key, cwd),
       tracked: metrics.tracked,
       covered: metrics.covered,
       partial: metrics.partial,

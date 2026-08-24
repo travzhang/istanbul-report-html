@@ -12,7 +12,8 @@
     "release": "bumpp --configFilePath bump.config.ts",
     "release:patch": "bumpp patch --configFilePath bump.config.ts",
     "release:minor": "bumpp minor --configFilePath bump.config.ts",
-    "release:major": "bumpp major --configFilePath bump.config.ts"
+    "release:major": "bumpp major --configFilePath bump.config.ts",
+    "test": "pnpm --filter canyonjs-dev-report test"
   },
   "keywords": [],
   "author": "",

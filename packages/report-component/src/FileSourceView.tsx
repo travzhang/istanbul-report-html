@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react"
-import type * as Monaco from "monaco-editor";
+import * as monaco from "monaco-editor"
+
 interface FileSourceViewProps {
   filePath: string
   source: string | undefined
@@ -8,26 +9,17 @@ interface FileSourceViewProps {
 }
 
 export function FileSourceView({ filePath, source, loading, onBack }: FileSourceViewProps) {
-  console.log(source,'source')
-  const lines = source === undefined ? [] : source.split('\n')
-
-  const ref = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
+  const ref = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
 
   useEffect(() => {
-    console.log(monaco,'monaco',ref.current)
-    if (ref.current && ref.current.innerHTML === "") {
-
-      // @ts-ignore
+    if (ref.current !== null && ref.current.innerHTML === "") {
       editorRef.current = monaco.editor.create(ref.current, {
-        value: source,
-        language: 'typescript',
-      });
+        value: source ?? "",
+        language: "typescript",
+      })
     }
-  }, [
-    source,
-    loading
-  ]);
+  }, [source, loading])
 
   return (
     <div className="canyon-report__file">

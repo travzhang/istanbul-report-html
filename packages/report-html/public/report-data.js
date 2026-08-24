@@ -19,6 +19,7 @@ window.reportData = {
     coverageFileCount: 4,
     sourceFileCount: 4,
   },
+  instrumentCwd: "",
   coverage: {
     "src/index.ts": {
       path: "src/index.ts",
