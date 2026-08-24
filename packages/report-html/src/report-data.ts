@@ -7,12 +7,16 @@ export interface ReportData {
     metricsToShow?: ("lines" | "branches" | "functions" | "statements")[];
   };
   istanbul: {
+    dir: string;
     watermarks: {
       statements: [number, number];
       functions: [number, number];
       branches: [number, number];
       lines: [number, number];
     };
+    defaultSummarizer: "flat" | "nested" | "pkg" | "defaultSummarizer";
+    summarizer?: "flat" | "nested" | "pkg" | "defaultSummarizer";
+    sourceFinder: "filesystem" | "custom";
   };
   stats: {
     coverageFileCount: number;

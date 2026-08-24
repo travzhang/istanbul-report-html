@@ -1,7 +1,7 @@
 import type { FileCoverageData } from "istanbul-lib-coverage";
-import type { Context, ReportNode } from "istanbul-lib-report";
+import type { Context, ReportBaseOptions, ReportNode, Summarizers } from "istanbul-lib-report";
 import { ReportBase } from "istanbul-lib-report";
-import { CoverageReport } from "./coverage-report";
+import { CoverageReport, extractIstanbulContext } from "./coverage-report";
 
 /** maps report nodes to output paths, see the html report's `linkMapper` option */
 export interface LinkMapper {
@@ -27,11 +27,15 @@ export interface HtmlOptions {
 class HtmlReport extends ReportBase {
   private options: HtmlOptions;
   private coverage: Record<string, FileCoverageData> = {};
+  private summarizer?: Summarizers;
 
-  constructor(opts?: HtmlOptions) {
-    super();
+  constructor(opts?: HtmlOptions & Partial<ReportBaseOptions>) {
+    super(opts);
     this.options = opts ?? {};
     this.coverage = {};
+    if (opts?.summarizer !== undefined) {
+      this.summarizer = opts.summarizer;
+    }
   }
 
   onDetail(node: ReportNode): void {
@@ -45,9 +49,7 @@ class HtmlReport extends ReportBase {
       coverage: this.coverage,
       targetDir: context.dir,
       sourceFinder: context.sourceFinder,
-      istanbul: {
-        watermarks: context.watermarks,
-      },
+      istanbul: extractIstanbulContext(context, this.summarizer),
     });
   }
 }

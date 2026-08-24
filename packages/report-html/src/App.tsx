@@ -46,8 +46,8 @@ function WatermarksTable({ watermarks }: { watermarks: ReportData["istanbul"]["w
   const metrics = ["statements", "lines", "branches", "functions"] as const;
 
   return (
-    <section className="report-section">
-      <h2>Istanbul Context</h2>
+    <section className="report-section report-subsection">
+      <h3>Watermarks</h3>
       <table className="report-table">
         <thead>
           <tr>
@@ -67,6 +67,22 @@ function WatermarksTable({ watermarks }: { watermarks: ReportData["istanbul"]["w
         </tbody>
       </table>
     </section>
+  );
+}
+
+function IstanbulSection({ istanbul }: { istanbul: ReportData["istanbul"] }) {
+  const rows: [string, unknown][] = [
+    ["dir", istanbul.dir],
+    ["defaultSummarizer", istanbul.defaultSummarizer],
+    ["summarizer", istanbul.summarizer],
+    ["sourceFinder", istanbul.sourceFinder],
+  ];
+
+  return (
+    <>
+      <OptionsTable title="Istanbul Context" rows={rows} />
+      <WatermarksTable watermarks={istanbul.watermarks} />
+    </>
   );
 }
 
@@ -111,7 +127,7 @@ function App() {
       </section>
 
       <OptionsTable title="HTML Report Options" rows={htmlRows} />
-      <WatermarksTable watermarks={reportData.istanbul.watermarks} />
+      <IstanbulSection istanbul={reportData.istanbul} />
     </main>
   );
 }

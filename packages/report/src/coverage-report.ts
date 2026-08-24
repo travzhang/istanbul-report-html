@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { FileCoverageData } from "istanbul-lib-coverage";
-import type { Watermarks } from "istanbul-lib-report";
+import type { Context, Summarizers, Watermarks } from "istanbul-lib-report";
 
 import type { HtmlOptions } from "./index";
 
@@ -18,9 +18,18 @@ export type CoverageData = Record<string, FileCoverageData>;
 /** html report options embedded in the HTML report (`linkMapper` is omitted) */
 export type SerializableHtmlOptions = Omit<HtmlOptions, "linkMapper">;
 
-/** istanbul context fields passed into {@link CoverageReport.generate} */
+/** serializable subset of istanbul `createContext` options plus report tree config */
 export interface IstanbulReportContext {
+  /** output directory from {@link Context.dir} */
+  dir: string;
+  /** low/high percentage thresholds from {@link Context.watermarks} */
   watermarks: Watermarks;
+  /** default tree from `createContext({ defaultSummarizer })` */
+  defaultSummarizer: Summarizers;
+  /** tree chosen by this report via `ReportBase` `summarizer` option */
+  summarizer?: Summarizers;
+  /** whether context uses istanbul's filesystem lookup or a custom `sourceFinder` */
+  sourceFinder: "filesystem" | "custom";
 }
 
 /** summary counts shown in the HTML report UI */
@@ -53,6 +62,57 @@ export type CovData = ReportData;
 export interface GenerateResult {
   reportData: ReportData;
   htmlReportPath?: string;
+}
+
+interface ContextWithSummarizerFactory extends Context {
+  _summarizerFactory?: {
+    _defaultSummarizer: Summarizers;
+  };
+}
+
+function serializeHtmlOptions(options: HtmlOptions): SerializableHtmlOptions {
+  const html: SerializableHtmlOptions = {};
+
+  if (options.verbose !== undefined) {
+    html.verbose = options.verbose;
+  }
+  if (options.subdir !== undefined) {
+    html.subdir = options.subdir;
+  }
+  if (options.skipEmpty !== undefined) {
+    html.skipEmpty = options.skipEmpty;
+  }
+  if (options.metricsToShow !== undefined) {
+    html.metricsToShow = options.metricsToShow;
+  }
+
+  return html;
+}
+
+function getSourceFinderKind(sourceFinder: (filePath: string) => string): "filesystem" | "custom" {
+  const { name } = sourceFinder;
+  if (name === "defaultSourceLookup" || name === "bound defaultSourceLookup") {
+    return "filesystem";
+  }
+
+  return "custom";
+}
+
+/** extract serializable istanbul context fields for the HTML report */
+export function extractIstanbulContext(
+  context: Context,
+  summarizer?: Summarizers,
+): IstanbulReportContext {
+  const defaultSummarizer =
+    (context as ContextWithSummarizerFactory)._summarizerFactory?._defaultSummarizer ?? "pkg";
+
+  return {
+    dir: context.dir,
+    watermarks: context.watermarks,
+    defaultSummarizer,
+    sourceFinder: getSourceFinderKind(context.sourceFinder),
+    ...(summarizer !== undefined ? { summarizer } : {}),
+  };
 }
 
 function resolveReportHtmlDist(): string | null {
@@ -112,10 +172,8 @@ export class CoverageReport {
       }
     }
 
-    const { linkMapper: _linkMapper, ...html } = this.htmlOptions;
-
     return {
-      html,
+      html: serializeHtmlOptions(this.htmlOptions),
       istanbul,
       stats: {
         coverageFileCount: Object.keys(coverage).length,

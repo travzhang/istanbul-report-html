@@ -63,7 +63,7 @@ pnpm --filter canyonjs-dev-report build
 **参数分层：**
 
 - `HtmlReport` 构造函数的 `HtmlOptions`：HTML 报告专属（`verbose`、`linkMapper`、`subdir`、`skipEmpty`、`metricsToShow`）
-- `generate()` 的 `istanbul`：来自 istanbul `Context`（如 `watermarks`），与 HTML options 分开传入
+- `generate()` 的 `istanbul`：来自 istanbul `Context`（`dir`、`watermarks`、`defaultSummarizer`、`sourceFinder`）及 `ReportBase.summarizer`
 
 ## 编码规范
 

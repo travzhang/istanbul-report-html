@@ -29,6 +29,12 @@
   font-size: 1.1rem;
 }
 
+.report-subsection h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  color: var(--text-h);
+}
+
 .report-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
