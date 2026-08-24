@@ -1,7 +1,7 @@
 {
   "name": "canyonjs-dev-report-component",
   "type": "module",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "A starter for creating a React component library.",
   "author": "Author Name <author.name@mail.com>",
   "license": "MIT",
