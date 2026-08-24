@@ -25,6 +25,7 @@ export function FileSourceView({ filePath, source, loading, onBack }: FileSource
     }
   }, [
     source,
+    loading
   ]);
 
   return (
