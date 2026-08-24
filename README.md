@@ -167,4 +167,4 @@ On publish, `workspace:*` is replaced with exact versions—for example, `canyon
 
 ## License
 
-ISC
+[MIT](./LICENSE) © [Travis Zhang](https://github.com/travzhang)

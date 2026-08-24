@@ -3,15 +3,15 @@
   "type": "module",
   "version": "1.0.16",
   "description": "A starter for creating a React component library.",
-  "author": "Author Name <author.name@mail.com>",
+  "author": "Travis Zhang (https://github.com/travzhang)",
   "license": "MIT",
-  "homepage": "https://github.com/author/library#readme",
+  "homepage": "https://github.com/travzhang/istanbul-report-html#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/author/library.git"
+    "url": "git+https://github.com/travzhang/istanbul-report-html.git"
   },
   "bugs": {
-    "url": "https://github.com/author/library/issues"
+    "url": "https://github.com/travzhang/istanbul-report-html/issues"
   },
   "exports": {
     ".": "./dist/index.js",

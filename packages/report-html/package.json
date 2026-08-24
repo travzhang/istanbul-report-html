@@ -6,6 +6,8 @@
   "files": [
     "dist"
   ],
+  "author": "Travis Zhang (https://github.com/travzhang)",
+  "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
