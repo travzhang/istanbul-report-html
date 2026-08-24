@@ -45,6 +45,9 @@ class HtmlReport extends ReportBase {
       coverage: this.coverage,
       targetDir: context.dir,
       sourceFinder: context.sourceFinder,
+      istanbul: {
+        watermarks: context.watermarks,
+      },
     });
   }
 }

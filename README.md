@@ -1,6 +1,6 @@
 # canyonjs-dev-istanbul-report-html
 
-基于 Istanbul 的 HTML 覆盖率报告 monorepo。将覆盖率数据生成为 JSON，并在安装 UI 包后输出可交互的 HTML 报告。
+基于 Istanbul 的 HTML 覆盖率报告 monorepo。安装 UI 包后输出内嵌覆盖率数据的单文件 HTML 报告。
 
 ## 包一览
 
@@ -8,7 +8,7 @@
 |------|----------|------|
 | `packages/report-component` | `canyonjs-dev-report-component` | React 组件库，构建产物供 report-html 打包 |
 | `packages/report-html` | `canyonjs-dev-report-html` | 单文件 HTML UI（Vite + React），发布 `dist/` |
-| `packages/report` | `canyonjs-dev-report` | Istanbul 报告器，生成 JSON 并可选输出 HTML |
+| `packages/report` | `canyonjs-dev-report` | Istanbul 报告器，可选输出单文件 HTML |
 
 ## 架构
 
@@ -16,18 +16,16 @@
 flowchart LR
   A[canyonjs-dev-report-component] -->|构建时打包| B[canyonjs-dev-report-html]
   B -->|运行时复制 dist| C[canyonjs-dev-report]
-  C -->|输出| D[coverage/]
-  D --> D1[cov-data.json]
-  D --> D2[index.html]
-  D --> D3[report-data.js]
+  C -->|输出| D[coverage/index.html]
 ```
 
 **数据流：**
 
 1. 测试框架（如 Vitest）收集 Istanbul 覆盖率
-2. `canyonjs-dev-report` 作为 reporter 写入 `cov-data.json`
-3. 若安装了 `canyonjs-dev-report-html`，同时复制 `index.html` 并生成 `report-data.js`
-4. 浏览器打开 `coverage/index.html` 查看报告
+2. 若安装了 `canyonjs-dev-report-html`，`canyonjs-dev-report` 读取 HTML 模板并注入数据，写出 `coverage/index.html`
+3. 浏览器打开 `coverage/index.html` 查看报告（单文件，无需额外资源）
+
+纯 JSON 需求请使用 Istanbul 内置 `"json"` reporter，与本 reporter 独立。
 
 ## 快速开始
 
@@ -84,13 +82,11 @@ npm install -D canyonjs-dev-report
 npm install -D canyonjs-dev-report-html
 ```
 
-运行测试后，覆盖率目录默认包含：
+运行测试后，若安装了 `canyonjs-dev-report-html`，覆盖率目录包含：
 
 ```
 coverage/
-├── cov-data.json       # 覆盖率 JSON 数据
-├── index.html          # HTML 报告（需安装 report-html）
-└── report-data.js      # 注入 window.reportData
+└── index.html          # 单文件 HTML 报告（内嵌 window.reportData）
 ```
 
 ### 与 istanbul-lib-report 配合

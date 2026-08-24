@@ -3,35 +3,55 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { FileCoverageData } from "istanbul-lib-coverage";
+import type { Watermarks } from "istanbul-lib-report";
 
 import type { HtmlOptions } from "./index";
 
 const require = createRequire(import.meta.url);
 
+/** Must stay in sync with packages/report-html/report-data-placeholder.ts */
+const REPORT_DATA_PLACEHOLDER = "__REPORT_DATA__";
+
 /** coverage data keyed by absolute file path */
 export type CoverageData = Record<string, FileCoverageData>;
 
-/** html options persisted to `cov-data.json` (`linkMapper` is omitted) */
+/** html report options embedded in the HTML report (`linkMapper` is omitted) */
 export type SerializableHtmlOptions = Omit<HtmlOptions, "linkMapper">;
+
+/** istanbul context fields passed into {@link CoverageReport.generate} */
+export interface IstanbulReportContext {
+  watermarks: Watermarks;
+}
+
+/** summary counts shown in the HTML report UI */
+export interface ReportStats {
+  coverageFileCount: number;
+  sourceFileCount: number;
+}
 
 /** input to {@link CoverageReport.generate} */
 export interface GenerateOptions {
   coverage: CoverageData;
   targetDir: string;
   sourceFinder: (filePath: string) => string;
+  istanbul: IstanbulReportContext;
 }
 
-/** serialized payload written to `cov-data.json` */
-export interface CovData {
-  options: SerializableHtmlOptions;
+/** serialized payload embedded in the HTML report */
+export interface ReportData {
+  html: SerializableHtmlOptions;
+  istanbul: IstanbulReportContext;
+  stats: ReportStats;
   coverage: CoverageData;
   sources: Record<string, string>;
 }
 
+/** @deprecated use {@link ReportData} */
+export type CovData = ReportData;
+
 /** output from {@link CoverageReport.generate} */
 export interface GenerateResult {
-  reportPath: string;
-  reportData: CovData;
+  reportData: ReportData;
   htmlReportPath?: string;
 }
 
@@ -49,32 +69,39 @@ function resolveReportHtmlDist(): string | null {
   return null;
 }
 
+function serializeReportData(reportData: ReportData): string {
+  return JSON.stringify(reportData).replace(/</g, "\\u003c");
+}
+
 function writeHtmlReport(
-  reportData: CovData,
+  reportData: ReportData,
   targetDir: string,
   reportHtmlDist: string,
 ): string {
-  fs.copyFileSync(
-    path.join(reportHtmlDist, "index.html"),
-    path.join(targetDir, "index.html"),
-  );
-  fs.writeFileSync(
-    path.join(targetDir, "report-data.js"),
-    `window.reportData = ${JSON.stringify(reportData)};\n`,
-    "utf-8",
-  );
+  const template = fs.readFileSync(path.join(reportHtmlDist, "index.html"), "utf-8");
+  if (!template.includes(REPORT_DATA_PLACEHOLDER)) {
+    throw new Error(`HTML template missing ${REPORT_DATA_PLACEHOLDER} placeholder`);
+  }
 
-  return path.join(targetDir, "index.html");
+  const html = template.replace(REPORT_DATA_PLACEHOLDER, serializeReportData(reportData));
+  const htmlReportPath = path.join(targetDir, "index.html");
+  fs.writeFileSync(htmlReportPath, html, "utf-8");
+
+  return htmlReportPath;
 }
 
 export class CoverageReport {
-  private options: HtmlOptions;
+  private htmlOptions: HtmlOptions;
 
-  constructor(options: HtmlOptions = {}) {
-    this.options = options;
+  constructor(htmlOptions: HtmlOptions = {}) {
+    this.htmlOptions = htmlOptions;
   }
 
-  buildReportData(coverage: CoverageData, sourceFinder: (filePath: string) => string): CovData {
+  buildReportData(
+    coverage: CoverageData,
+    sourceFinder: (filePath: string) => string,
+    istanbul: IstanbulReportContext,
+  ): ReportData {
     const sources: Record<string, string> = {};
 
     for (const filePath of Object.keys(coverage)) {
@@ -85,31 +112,41 @@ export class CoverageReport {
       }
     }
 
-    const { linkMapper: _linkMapper, ...options } = this.options;
+    const { linkMapper: _linkMapper, ...html } = this.htmlOptions;
 
-    return { options, coverage, sources };
+    return {
+      html,
+      istanbul,
+      stats: {
+        coverageFileCount: Object.keys(coverage).length,
+        sourceFileCount: Object.keys(sources).length,
+      },
+      coverage,
+      sources,
+    };
   }
 
-  async generate({ coverage, targetDir, sourceFinder }: GenerateOptions): Promise<GenerateResult> {
-    const reportData = this.buildReportData(coverage, sourceFinder);
+  async generate({
+    coverage,
+    targetDir,
+    sourceFinder,
+    istanbul,
+  }: GenerateOptions): Promise<GenerateResult> {
+    const reportData = this.buildReportData(coverage, sourceFinder, istanbul);
 
     fs.mkdirSync(targetDir, { recursive: true });
-    const reportPath = path.join(targetDir, "cov-data.json");
-    fs.writeFileSync(reportPath, JSON.stringify(reportData, null, 2), "utf-8");
 
     let htmlReportPath: string | undefined;
     const reportHtmlDist = resolveReportHtmlDist();
     if (reportHtmlDist) {
       htmlReportPath = writeHtmlReport(reportData, targetDir, reportHtmlDist);
-      if (this.options.verbose) {
+      if (this.htmlOptions.verbose) {
         console.log(`HTML report written to ${htmlReportPath}`);
       }
-    } else if (this.options.verbose) {
+    } else if (this.htmlOptions.verbose) {
       console.log("canyonjs-dev-report-html not found, skipping HTML report generation");
     }
 
-    return htmlReportPath !== undefined
-      ? { reportPath, reportData, htmlReportPath }
-      : { reportPath, reportData };
+    return htmlReportPath !== undefined ? { reportData, htmlReportPath } : { reportData };
   }
 }
