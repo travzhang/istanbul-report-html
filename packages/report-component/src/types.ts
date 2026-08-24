@@ -70,6 +70,7 @@ export interface ReportAppProps {
   instrumentCwd: string
   generatedAt?: string
   name?: string
+  /** 无 hash 时的初始路径，例如 `src/index.ts` */
   defaultValue?: string
   packageName?: string
   packageVersion?: string

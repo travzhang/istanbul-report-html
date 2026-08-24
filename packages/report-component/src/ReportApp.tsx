@@ -1,8 +1,9 @@
-import { type FC, useCallback, useMemo, useState } from 'react'
+import { type FC, useCallback, useMemo } from 'react'
 import { Report } from './Report'
 import { filesToDataSource } from './helpers/summary'
 import { cwdBaseName, toRelativePath } from './paths'
 import type { FileCoverageData, FileDataResponse, ReportAppProps } from './types'
+import { useHashPath } from './useHashPath'
 
 const emptyFileCoverage: FileCoverageData = {
   path: '',
@@ -29,7 +30,7 @@ export const ReportApp: FC<ReportAppProps> = ({
   height = 'calc(100vh - 16px)',
   showFooter = true,
 }) => {
-  const [value, setValue] = useState(defaultValue)
+  const [value, setValue] = useHashPath(defaultValue)
 
   const relativeFiles = useMemo(() => {
     return files.map((item) => ({
@@ -56,7 +57,7 @@ export const ReportApp: FC<ReportAppProps> = ({
         fileContent: file.source,
       })
     },
-    [relativeFiles],
+    [relativeFiles, setValue],
   )
 
   return (
