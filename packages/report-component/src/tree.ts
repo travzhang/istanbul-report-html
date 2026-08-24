@@ -1,61 +1,19 @@
-import { addMetrics, computeFileMetrics, emptyMetrics } from './metrics'
-import type { CoverageMetrics, FileCoverageData, FileTreeNode } from './types'
+import { addMetrics, emptyMetrics, round2 } from './metrics'
+import type { CoverageMetrics, DataSourceItem, FileTreeNode } from './types'
 
 export function normalizePath(filePath: string): string {
-  return filePath.replaceAll('\\', '/')
+  return filePath.replaceAll('\\', '/').replace(/^\//, '')
 }
 
-export function commonDirPrefix(paths: string[]): string {
-  if (paths.length === 0) {
-    return ''
+function itemMetrics(item: DataSourceItem): CoverageMetrics {
+  const tracked = item.tracked
+  return {
+    tracked,
+    covered: item.covered,
+    partial: item.partial,
+    missed: item.missed,
+    pct: tracked === 0 ? 100 : round2((item.covered / tracked) * 100),
   }
-
-  const dirParts = paths.map((filePath) => {
-    const parts = normalizePath(filePath).split('/').filter(Boolean)
-    return parts.slice(0, -1)
-  })
-
-  const first = dirParts[0]
-  if (first === undefined || first.length === 0) {
-    return ''
-  }
-
-  let prefix = first
-  for (const parts of dirParts.slice(1)) {
-    let index = 0
-    while (index < prefix.length && index < parts.length && prefix[index] === parts[index]) {
-      index += 1
-    }
-    prefix = prefix.slice(0, index)
-  }
-
-  return prefix.join('/')
-}
-
-export function rootLabelFromPrefix(prefix: string, fallback: string): string {
-  if (prefix === '') {
-    return fallback
-  }
-  const parts = prefix.split('/').filter(Boolean)
-  return parts[parts.length - 1] ?? fallback
-}
-
-export function toRelPath(filePath: string, prefix: string): string {
-  const normalized = normalizePath(filePath)
-  if (prefix === '') {
-    return normalized.replace(/^\//, '')
-  }
-  if (normalized === prefix) {
-    return ''
-  }
-  const withSlash = prefix.endsWith('/') ? prefix : `${prefix}/`
-  if (normalized.startsWith(withSlash)) {
-    return normalized.slice(withSlash.length)
-  }
-  if (normalized.startsWith(`/${withSlash}`)) {
-    return normalized.slice(withSlash.length + 1)
-  }
-  return normalized.replace(/^\//, '')
 }
 
 function sortChildren(node: FileTreeNode): void {
@@ -83,21 +41,17 @@ function rollupMetrics(node: FileTreeNode): CoverageMetrics {
   return metrics
 }
 
-export function buildFileTree(
-  coverage: Record<string, FileCoverageData>,
-  prefix: string,
-): FileTreeNode {
+export function buildFileTree(items: DataSourceItem[]): FileTreeNode {
   const root: FileTreeNode = {
     name: '',
-    relPath: '',
+    path: '',
     kind: 'dir',
     metrics: emptyMetrics(),
     children: [],
   }
 
-  for (const [coverageKey, data] of Object.entries(coverage)) {
-    const absPath = normalizePath(data.path || coverageKey)
-    const relPath = toRelPath(absPath, prefix)
+  for (const item of items) {
+    const relPath = normalizePath(item.path)
     if (relPath === '') {
       continue
     }
@@ -117,11 +71,10 @@ export function buildFileTree(
       if (child === undefined) {
         child = {
           name,
-          relPath: acc,
+          path: acc,
           kind: isFile ? 'file' : 'dir',
-          metrics: isFile ? computeFileMetrics(data) : emptyMetrics(),
+          metrics: isFile ? itemMetrics(item) : emptyMetrics(),
           children: [],
-          ...(isFile ? { coverageKey } : {}),
         }
         current.children.push(child)
       }
@@ -134,7 +87,8 @@ export function buildFileTree(
   return root
 }
 
-export function findNode(root: FileTreeNode, relPath: string): FileTreeNode | undefined {
+export function findNode(root: FileTreeNode, path: string): FileTreeNode | undefined {
+  const relPath = normalizePath(path)
   if (relPath === '') {
     return root
   }
@@ -156,10 +110,16 @@ export function collectFiles(node: FileTreeNode): FileTreeNode[] {
   return node.children.flatMap(collectFiles)
 }
 
-export function collectFilesUnder(root: FileTreeNode, relPath: string): FileTreeNode[] {
-  const node = findNode(root, relPath)
+export function collectFilesUnder(root: FileTreeNode, path: string): FileTreeNode[] {
+  const node = findNode(root, path)
   if (node === undefined) {
     return []
   }
   return collectFiles(node)
+}
+
+export function parentPath(path: string): string {
+  const normalized = normalizePath(path)
+  const index = normalized.lastIndexOf('/')
+  return index === -1 ? '' : normalized.slice(0, index)
 }

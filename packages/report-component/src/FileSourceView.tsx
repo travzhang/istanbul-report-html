@@ -1,10 +1,11 @@
 interface FileSourceViewProps {
   filePath: string
   source: string | undefined
+  loading: boolean
   onBack: () => void
 }
 
-export function FileSourceView({ filePath, source, onBack }: FileSourceViewProps) {
+export function FileSourceView({ filePath, source, loading, onBack }: FileSourceViewProps) {
   const lines = source === undefined ? [] : source.split('\n')
 
   return (
@@ -15,7 +16,9 @@ export function FileSourceView({ filePath, source, onBack }: FileSourceViewProps
         </button>
         <span className="canyon-report__file-path">{filePath}</span>
       </div>
-      {source === undefined ? (
+      {loading ? (
+        <p className="canyon-report__empty">Loading…</p>
+      ) : source === undefined ? (
         <p className="canyon-report__empty">Source not available.</p>
       ) : (
         <pre className="canyon-report__source">

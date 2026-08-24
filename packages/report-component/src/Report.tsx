@@ -7,12 +7,10 @@ import {
   buildFileTree,
   collectFiles,
   collectFilesUnder,
-  commonDirPrefix,
   findNode,
-  normalizePath,
-  rootLabelFromPrefix,
+  parentPath,
 } from './tree'
-import type { CoverageReportProps, FileTreeNode } from './types'
+import type { FileTreeNode, ReportProps } from './types'
 
 type ViewMode = 'tree' | 'list'
 type SortKey = 'name' | 'tracked' | 'covered' | 'partial' | 'missed' | 'pct'
@@ -48,11 +46,11 @@ function formatCount(value: number): string {
   return value.toLocaleString('en-US')
 }
 
-function matchesQuery(relPath: string, query: string): boolean {
+function matchesQuery(path: string, query: string): boolean {
   if (query === '') {
     return true
   }
-  return relPath.toLowerCase().includes(query.toLowerCase())
+  return path.toLowerCase().includes(query.toLowerCase())
 }
 
 function sortRows(rows: FileTreeNode[], key: SortKey, dir: SortDir): FileTreeNode[] {
@@ -103,7 +101,7 @@ function Breadcrumb({
 }: {
   rootLabel: string
   currentDir: string
-  onNavigate: (relPath: string) => void
+  onNavigate: (path: string) => void
 }) {
   const parts = currentDir === '' ? [] : currentDir.split('/')
 
@@ -136,37 +134,27 @@ function Breadcrumb({
   )
 }
 
-export function CoverageReport({
-  coverage,
-  sources = {},
-  projectName,
-  watermarks = DEFAULT_WATERMARKS,
-}: CoverageReportProps) {
+export function Report({ name, value, dataSource, onSelect }: ReportProps) {
   injectReportStyles()
   const [view, setView] = useState<ViewMode>('tree')
   const [query, setQuery] = useState('')
-  const [currentDir, setCurrentDir] = useState('')
-  const [selectedFile, setSelectedFile] = useState<{ coverageKey: string; relPath: string } | null>(
-    null,
-  )
   const [sortKey, setSortKey] = useState<SortKey>('name')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
+  const [fileData, setFileData] = useState<{ path: string; source: string } | undefined>()
+  const [loading, setLoading] = useState(false)
 
-  const filePaths = useMemo(
-    () => Object.entries(coverage).map(([key, data]) => normalizePath(data.path || key)),
-    [coverage],
-  )
-  const prefix = useMemo(() => commonDirPrefix(filePaths), [filePaths])
-  const rootLabel = projectName ?? rootLabelFromPrefix(prefix, 'Coverage')
-  const tree = useMemo(() => buildFileTree(coverage, prefix), [coverage, prefix])
+  const tree = useMemo(() => buildFileTree(dataSource), [dataSource])
+  const selected = findNode(tree, value)
+  const currentDir = selected?.kind === 'file' ? parentPath(value) : (selected?.path ?? '')
+  const showingFile = selected?.kind === 'file'
 
   const rows = useMemo(() => {
     const trimmed = query.trim()
     if (view === 'list') {
-      return collectFiles(tree).filter((node) => matchesQuery(node.relPath, trimmed))
+      return collectFiles(tree).filter((node) => matchesQuery(node.path, trimmed))
     }
     if (trimmed !== '') {
-      return collectFilesUnder(tree, currentDir).filter((node) => matchesQuery(node.relPath, trimmed))
+      return collectFilesUnder(tree, currentDir).filter((node) => matchesQuery(node.path, trimmed))
     }
     return findNode(tree, currentDir)?.children ?? []
   }, [tree, view, query, currentDir])
@@ -183,25 +171,30 @@ export function CoverageReport({
     setSortDir(column === 'name' ? 'asc' : 'desc')
   }
 
-  const openNode = (node: FileTreeNode) => {
-    if (node.kind === 'dir') {
-      setCurrentDir(node.relPath)
-      setSelectedFile(null)
-      return
-    }
-    if (node.coverageKey === undefined) {
-      return
-    }
-    setSelectedFile({ coverageKey: node.coverageKey, relPath: node.relPath })
+  const requestSelect = (path: string, isFile: boolean) => {
+    setLoading(isFile)
+    void onSelect(path)
+      .then((res) => {
+        setFileData({ path, source: res.source })
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
-  if (selectedFile !== null) {
+  const openNode = (node: FileTreeNode) => {
+    requestSelect(node.path, node.kind === 'file')
+  }
+
+  if (showingFile) {
+    const source = fileData?.path === value ? fileData.source : undefined
     return (
       <div className="canyon-report">
         <FileSourceView
-          filePath={selectedFile.relPath}
-          source={sources[selectedFile.coverageKey]}
-          onBack={() => setSelectedFile(null)}
+          filePath={value}
+          source={source}
+          loading={loading}
+          onBack={() => requestSelect(parentPath(value), false)}
         />
       </div>
     )
@@ -220,11 +213,11 @@ export function CoverageReport({
             </button>
           </div>
           {view === 'tree' ? (
-            <Breadcrumb rootLabel={rootLabel} currentDir={currentDir} onNavigate={setCurrentDir} />
+            <Breadcrumb rootLabel={name} currentDir={currentDir} onNavigate={(path) => requestSelect(path, false)} />
           ) : (
             <div className="canyon-report__summary">
               {sortedRows.length.toLocaleString('en-US')} total files
-              <span> {rootLabel}</span>
+              <span> {name}</span>
             </div>
           )}
         </div>
@@ -287,10 +280,10 @@ export function CoverageReport({
             </thead>
             <tbody>
               {sortedRows.map((node) => {
-                const level = coverageLevel(node.metrics.pct, watermarks)
-                const label = view === 'list' || query.trim() !== '' ? node.relPath : node.name
+                const level = coverageLevel(node.metrics.pct, DEFAULT_WATERMARKS)
+                const label = view === 'list' || query.trim() !== '' ? node.path : node.name
                 return (
-                  <tr key={`${node.kind}:${node.relPath}`}>
+                  <tr key={`${node.kind}:${node.path}`}>
                     <td>
                       <button type="button" className="canyon-report__name" onClick={() => openNode(node)}>
                         {node.kind === 'dir' ? <FolderIcon /> : null}

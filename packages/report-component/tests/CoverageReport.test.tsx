@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { expect, test } from 'vitest'
 import { render } from 'vitest-browser-react'
-import { CoverageReport } from '../src'
+import { Report } from '../src'
 import { coverageLines, makeFileCoverage } from '../src/make-coverage'
+import { fileCoverageToDataSource } from '../src/metrics'
 
 const coverage = {
   'src/index.ts': makeFileCoverage('src/index.ts', coverageLines(8, 2)),
@@ -9,16 +11,31 @@ const coverage = {
   'lib/parse.ts': makeFileCoverage('lib/parse.ts', coverageLines(3, 1)),
 }
 
-const sources = {
+const sources: Record<string, string> = {
   'src/index.ts': 'export const value = 1\n',
   'src/utils.ts': 'export function util() {}\n',
   'lib/parse.ts': 'export function parse() {}\n',
 }
 
-test('tree, list, search, and file source', async () => {
-  const screen = await render(
-    <CoverageReport coverage={coverage} sources={sources} projectName="hono" />,
+const dataSource = fileCoverageToDataSource(coverage)
+
+function Harness() {
+  const [value, setValue] = useState('')
+  return (
+    <Report
+      name="hono"
+      value={value}
+      dataSource={dataSource}
+      onSelect={async (val) => {
+        setValue(val)
+        return { source: sources[val] ?? '' }
+      }}
+    />
   )
+}
+
+test('tree, list, search, and file source', async () => {
+  const screen = await render(<Harness />)
 
   await expect.element(screen.getByRole('button', { name: 'src' })).toBeInTheDocument()
   await expect.element(screen.getByRole('button', { name: 'lib' })).toBeInTheDocument()

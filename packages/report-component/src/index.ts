@@ -1,3 +1,4 @@
 export { MyButton } from './MyButton'
-export { CoverageReport } from './CoverageReport'
-export type { CoverageReportProps, FileCoverageData, CoverageMetrics } from './types'
+export { Report } from './Report'
+export { fileCoverageToDataSource } from './metrics'
+export type { DataSourceItem, FileCoverageData, FileDataResponse, ReportProps } from './types'

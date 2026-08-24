@@ -1,4 +1,4 @@
-import type { CoverageMetrics, FileCoverageData } from './types'
+import type { CoverageMetrics, DataSourceItem, FileCoverageData } from './types'
 
 export function round2(value: number): number {
   return Math.round(value * 100) / 100
@@ -72,6 +72,21 @@ export function computeFileMetrics(coverage: FileCoverageData): CoverageMetrics 
     missed,
     pct: tracked === 0 ? 100 : round2((covered / tracked) * 100),
   }
+}
+
+export function fileCoverageToDataSource(
+  coverage: Record<string, FileCoverageData>,
+): DataSourceItem[] {
+  return Object.entries(coverage).map(([key, data]) => {
+    const metrics = computeFileMetrics(data)
+    return {
+      path: data.path || key,
+      tracked: metrics.tracked,
+      covered: metrics.covered,
+      partial: metrics.partial,
+      missed: metrics.missed,
+    }
+  })
 }
 
 export function coverageLevel(
