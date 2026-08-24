@@ -49,7 +49,7 @@ pnpm --filter canyonjs-dev-report build
 | `packages/report-html/src/App.tsx` | 报告 UI 入口，读取 `window.reportData` |
 | `packages/report-html/vite.config.ts` | 使用 `vite-plugin-singlefile` 输出单文件 HTML |
 | `packages/report/vitest.config.ts` | 示例：将 `dist/index.cjs` 注册为 istanbul reporter |
-| `bumpp.config.ts` | 同步 bump 4 个 package.json 版本 |
+| `bump.config.ts` | 同步 bump 4 个 package.json 版本（bumpp 默认识别此文件名） |
 | `.github/workflows/publish.yml` | tag `v*` 触发，按 component → html → report 顺序发布 |
 
 ## 覆盖率报告生成流程
@@ -90,6 +90,7 @@ return htmlReportPath !== undefined
 ## 版本与发布
 
 - 四个 `package.json`（含根目录）版本由 bumpp 统一管理
+- 配置文件必须命名为 **`bump.config.ts`**（不是 `bumpp.config.ts`），或在命令中显式传 `--configFilePath bump.config.ts`
 - 发布脚本：`pnpm release:patch` → `git push && git push --tags`
 - CI 需要 secret：`NPM_TOKEN`
 - 各 publishable 包的 `files` 字段仅含 `dist`，不含源码
@@ -118,7 +119,7 @@ return htmlReportPath !== undefined
 ### 添加新 publishable 包
 
 1. 在 `packages/` 下创建包，`publishConfig.access: "public"`，`files: ["dist"]`
-2. 加入 `bumpp.config.ts` 的 `files` 数组
+2. 加入 `bump.config.ts` 的 `files` 数组
 3. 更新 `publish.yml` 发布顺序
 4. 更新本文件和 README.md
 
@@ -143,4 +144,5 @@ pnpm --filter canyonjs-dev-report test
 - 不要将 `report-html` 放入 `report` 的 `devDependencies`（发布后使用方装不到）
 - 不要在未构建 `report-component` 的情况下构建 `report-html`
 - 不要手动单独 bump 某个子包版本而跳过 bumpp
+- 不要将 bumpp 配置文件命名为 `bumpp.config.ts`（bumpp 默认识别 `bump.config.ts`）
 - 不要修改 npm 包名前缀 `canyonjs-dev-` 而不同步所有引用

@@ -9,10 +9,10 @@
     "build:report": "pnpm --filter canyonjs-dev-report build",
     "dev:report-html": "pnpm --filter canyonjs-dev-report-html dev",
     "publish:packages": "pnpm --filter canyonjs-dev-report-component publish --no-git-checks --access public && pnpm --filter canyonjs-dev-report-html publish --no-git-checks --access public && pnpm --filter canyonjs-dev-report publish --no-git-checks --access public",
-    "release": "bumpp",
-    "release:patch": "bumpp patch",
-    "release:minor": "bumpp minor",
-    "release:major": "bumpp major"
+    "release": "bumpp --configFilePath bump.config.ts",
+    "release:patch": "bumpp patch --configFilePath bump.config.ts",
+    "release:minor": "bumpp minor --configFilePath bump.config.ts",
+    "release:major": "bumpp major --configFilePath bump.config.ts"
   },
   "keywords": [],
   "author": "",

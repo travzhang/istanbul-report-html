@@ -153,7 +153,7 @@ pnpm publish:packages
 │   ├── report-component/   # React 组件库 (tsdown)
 │   ├── report-html/        # HTML UI (Vite + vite-plugin-singlefile)
 │   └── report/             # Istanbul reporter (tsdown, CommonJS)
-├── bumpp.config.ts         # 统一版本 bump 配置
+├── bump.config.ts            # 统一版本 bump 配置（注意文件名是 bump 不是 bumpp）
 ├── pnpm-workspace.yaml
 └── .github/workflows/publish.yml
 ```
