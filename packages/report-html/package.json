@@ -1,6 +1,6 @@
 {
   "name": "canyonjs-dev-report-html",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Istanbul coverage report HTML bundle",
   "type": "module",
   "files": [
