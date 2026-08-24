@@ -95,6 +95,9 @@ importers:
 
   packages/report-html:
     dependencies:
+      monaco-editor:
+        specifier: ^0.56.0
+        version: 0.56.0
       react:
         specifier: ^19.2.8
         version: 19.2.8

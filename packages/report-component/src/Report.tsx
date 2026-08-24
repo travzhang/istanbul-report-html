@@ -188,6 +188,7 @@ export function Report({ name, value, dataSource, onSelect }: ReportProps) {
 
   if (showingFile) {
     const source = fileData?.path === value ? fileData.source : undefined
+    console.log(fileData,'fileData')
     return (
       <div className="canyon-report">
         <FileSourceView

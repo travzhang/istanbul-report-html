@@ -8,6 +8,7 @@ interface FileSourceViewProps {
 }
 
 export function FileSourceView({ filePath, source, loading, onBack }: FileSourceViewProps) {
+  console.log(source,'source')
   const lines = source === undefined ? [] : source.split('\n')
 
   const ref = useRef<HTMLDivElement>(null);
