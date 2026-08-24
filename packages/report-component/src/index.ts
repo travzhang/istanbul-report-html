@@ -5,7 +5,6 @@ export { ReportApp } from './ReportApp'
 export { filesToDataSource } from './helpers/summary'
 export {
   cwdBaseName,
-  resolveInstrumentCwd,
   resolveSource,
   toAbsolutePath,
   toRelativePath,

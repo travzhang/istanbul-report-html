@@ -22,7 +22,7 @@ export interface ReportData {
     coverageFileCount: number;
     sourceFileCount: number;
   };
-  /** common absolute directory of all coverage files; UI paths are relative to this */
+  /** process.cwd() when the report was generated; UI paths are relative to this */
   instrumentCwd: string;
   coverage: Record<string, unknown>;
   sources: Record<string, string>;

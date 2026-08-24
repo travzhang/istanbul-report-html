@@ -6,7 +6,6 @@ import type { FileCoverageData } from "istanbul-lib-coverage";
 import type { Context, Summarizers, Watermarks } from "istanbul-lib-report";
 
 import type { HtmlOptions } from "./index";
-import { resolveInstrumentCwd } from "./instrument-cwd";
 
 const require = createRequire(import.meta.url);
 
@@ -52,7 +51,7 @@ export interface ReportData {
   html: SerializableHtmlOptions;
   istanbul: IstanbulReportContext;
   stats: ReportStats;
-  /** common absolute directory of all coverage files; UI paths are relative to this */
+  /** process.cwd() when the report was generated; UI paths are relative to this */
   instrumentCwd: string;
   coverage: CoverageData;
   sources: Record<string, string>;
@@ -175,10 +174,6 @@ export class CoverageReport {
       }
     }
 
-    const instrumentCwd = resolveInstrumentCwd(
-      Object.entries(coverage).map(([key, data]) => data.path || key),
-    );
-
     return {
       html: serializeHtmlOptions(this.htmlOptions),
       istanbul,
@@ -186,7 +181,7 @@ export class CoverageReport {
         coverageFileCount: Object.keys(coverage).length,
         sourceFileCount: Object.keys(sources).length,
       },
-      instrumentCwd,
+      instrumentCwd: process.cwd(),
       coverage,
       sources,
     };

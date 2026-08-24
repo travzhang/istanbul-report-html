@@ -1,31 +1,9 @@
 import { expect, test } from 'vitest'
 import { filesToDataSource } from '../src/helpers/summary'
 import { coverageLines, makeFileCoverage } from '../src/make-coverage'
-import {
-  cwdBaseName,
-  resolveInstrumentCwd,
-  resolveSource,
-  toAbsolutePath,
-  toRelativePath,
-} from '../src/paths'
+import { cwdBaseName, resolveSource, toAbsolutePath, toRelativePath } from '../src/paths'
 
-test('walks up until a single common directory remains', () => {
-  expect(
-    resolveInstrumentCwd([
-      '/Users/foo/hono/src/index.ts',
-      '/Users/foo/hono/src/utils.ts',
-      '/Users/foo/hono/build/index.js',
-    ]),
-  ).toBe('/Users/foo/hono')
-
-  expect(
-    resolveInstrumentCwd(['/Users/foo/hono/src/a.ts', '/Users/foo/hono/src/b.ts']),
-  ).toBe('/Users/foo/hono/src')
-
-  expect(resolveInstrumentCwd(['src/index.ts', 'lib/parse.ts'])).toBe('')
-})
-
-test('converts between relative UI paths and absolute instrument paths', () => {
+test('strips instrumentCwd prefix like canyon', () => {
   const cwd = '/Users/foo/hono'
   expect(toRelativePath('/Users/foo/hono/src/index.ts', cwd)).toBe('src/index.ts')
   expect(toAbsolutePath('src/index.ts', cwd)).toBe('/Users/foo/hono/src/index.ts')

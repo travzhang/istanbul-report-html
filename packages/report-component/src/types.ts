@@ -66,7 +66,7 @@ export interface ReportAppFile extends FileCoverageData {
 
 export interface ReportAppProps {
   files: ReportAppFile[]
-  /** Instrumentation working directory; used to strip path prefixes */
+  /** process.cwd() when the report was generated; used to strip path prefixes */
   instrumentCwd: string
   generatedAt?: string
   name?: string

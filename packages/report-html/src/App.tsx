@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import {
   ReportApp,
   cwdBaseName,
-  resolveInstrumentCwd,
   resolveSource,
   toRelativePath,
   type FileCoverageData,
@@ -12,15 +11,13 @@ import "canyonjs-dev-report-component/style.css";
 
 function App() {
   const reportData = window.reportData;
+  const instrumentCwd = reportData?.instrumentCwd ?? "";
 
   const files = useMemo((): ReportAppFile[] => {
     const coverage = reportData?.coverage as Record<string, FileCoverageData> | undefined;
     if (reportData === undefined || coverage === undefined) {
       return [];
     }
-    const instrumentCwd =
-      reportData.instrumentCwd ||
-      resolveInstrumentCwd(Object.entries(coverage).map(([key, data]) => data.path || key));
 
     return Object.entries(coverage).map(([key, data]) => {
       const absPath = data.path || key;
@@ -30,9 +27,7 @@ function App() {
         source: resolveSource(reportData.sources, toRelativePath(absPath, instrumentCwd), instrumentCwd),
       };
     });
-  }, [reportData]);
-
-  const instrumentCwd = reportData?.instrumentCwd || resolveInstrumentCwd(files.map((file) => file.path));
+  }, [reportData, instrumentCwd]);
 
   if (!reportData) {
     return <p>No report data loaded.</p>;
